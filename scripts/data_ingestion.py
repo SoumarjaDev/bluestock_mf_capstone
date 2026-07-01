@@ -98,6 +98,50 @@ def load_all_datasets() -> dict:
     return dataframes
 
 
+def explore_fund_master(df: pd.DataFrame) -> None:
+    """Task 11: Print unique fund houses, categories, sub-categories, risk grades."""
+    print(f"\n{'=' * 70}")
+    print("FUND MASTER EXPLORATION")
+    print(f"{'=' * 70}")
+    print(f"\nUnique fund houses ({df['fund_house'].nunique()}):")
+    print(df['fund_house'].unique())
+
+    print(f"\nUnique categories ({df['category'].nunique()}):")
+    print(df['category'].unique())
+
+    print(f"\nUnique sub-categories ({df['sub_category'].nunique()}):")
+    print(df['sub_category'].unique())
+
+    print(f"\nUnique risk categories ({df['risk_category'].nunique()}):")
+    print(df['risk_category'].unique())
+
+
+def validate_amfi_codes(fund_master: pd.DataFrame, nav_history: pd.DataFrame) -> None:
+    """Task 12: Check every amfi_code in fund_master exists in nav_history."""
+    print(f"\n{'=' * 70}")
+    print("AMFI CODE VALIDATION")
+    print(f"{'=' * 70}")
+
+    master_codes = set(fund_master['amfi_code'])
+    nav_codes = set(nav_history['amfi_code'])
+
+    missing_in_nav = master_codes - nav_codes
+    extra_in_nav = nav_codes - master_codes
+
+    print(f"\nTotal codes in fund_master: {len(master_codes)}")
+    print(f"Total unique codes in nav_history: {len(nav_codes)}")
+
+    if not missing_in_nav:
+        print("PASS: All fund_master codes have matching NAV history.")
+    else:
+        print(f"FAIL: {len(missing_in_nav)} code(s) in fund_master missing from nav_history:")
+        print(missing_in_nav)
+
+    if extra_in_nav:
+        print(f"NOTE: {len(extra_in_nav)} code(s) in nav_history not present in fund_master:")
+        print(extra_in_nav)
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -107,3 +151,9 @@ if __name__ == "__main__":
     print(f"\n{'=' * 70}")
     print(f"Ingestion complete. {len(all_data)}/{len(DATASET_FILES)} datasets loaded successfully.")
     print(f"{'=' * 70}")
+
+    if "fund_master" in all_data:
+        explore_fund_master(all_data["fund_master"])
+
+    if "fund_master" in all_data and "nav_history" in all_data:
+        validate_amfi_codes(all_data["fund_master"], all_data["nav_history"])
